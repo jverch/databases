@@ -23,7 +23,7 @@ module.exports = {
           }
           console.log('ACTUAL RESULT', result);
           // console.log('REEEEESSSULTTTTTTTT ', messageToAdd.text);
-          if (result) {
+          if (result.length > 0) {
             var sql = `INSERT INTO messages (userID, text, roomname) VALUES   (${result[0].userID},
               "${messageToAdd.message}",
               "${messageToAdd.roomname}"
@@ -33,8 +33,20 @@ module.exports = {
               callback(err);
             });
           } else {
-            console.log('ERROR, CANNOT ADD MESSAGE, USERNAME DOESN\'T EXIST');
-            callback(err);
+            var sql = `INSERT INTO users (username) VALUES ('${
+              messageToAdd.username
+            }');`;
+            db.query(sql, (err, result) => {
+              if (err) throw err;
+              var sql = `INSERT INTO messages (userID, text, roomname) VALUES   (${result.insertId},
+                "${messageToAdd.message}",
+                "${messageToAdd.roomname}"
+              );`;
+              db.query(sql, (err, result) => {
+                console.log('ERROR', err);
+                callback(err);
+              });
+            });
           }
         }
       );

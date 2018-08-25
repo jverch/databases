@@ -98,10 +98,8 @@ var app = {
     // Clear existing messages`
     app.clearMessages();
     app.stopSpinner();
-    console.log('TYPE MESSAGES', Array.isArray(messages));
     if (Array.isArray(messages)) {
       // Add all fetched messages that are in our current room
-      console.log("lol its an array")
       messages
         .filter(function(message) {
           return message.roomname === app.roomname ||

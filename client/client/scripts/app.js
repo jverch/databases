@@ -3,7 +3,8 @@ var app = {
 
   //TODO: The current 'handleUsernameClick' function just toggles the class 'friend'
   //to all messages sent by the user
-  server: 'http://parse.CAMPUS.hackreactor.com/chatterbox/classes/messages',
+  server: 'http://127.0.0.1:3000/classes/messages',
+  // server: 'http://parse.CAMPUS.hackreactor.com/chatterbox/classes/messages',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -61,27 +62,26 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      data: { order: '-createdAt' },
+      // data: { order: '-createdAt' },
       success: function(data) {
         // Don't bother if we have nothing to work with
-        if (!data.results || !data.results.length) { return; }
+        if (!data.length) { return; }
 
         // Store messages for caching later
         app.messages = data.results;
 
         // Get the last message
-        var mostRecentMessage = data.results[data.results.length - 1];
-
+        var mostRecentMessage = data[data.length - 1];
         // Only bother updating the DOM if we have a new message
-        if (mostRecentMessage.objectId !== app.lastMessageId) {
+        if (mostRecentMessage.objectID !== app.lastMessageId) {
           // Update the UI with the fetched rooms
-          app.renderRoomList(data.results);
+          app.renderRoomList(data);
 
           // Update the UI with the fetched messages
-          app.renderMessages(data.results, animate);
+          app.renderMessages(data.reverse(), animate);
 
           // Store the ID of the most recent message
-          app.lastMessageId = mostRecentMessage.objectId;
+          app.lastMessageId = mostRecentMessage.ID;
         }
       },
       error: function(error) {
@@ -98,8 +98,10 @@ var app = {
     // Clear existing messages`
     app.clearMessages();
     app.stopSpinner();
+    console.log('TYPE MESSAGES', Array.isArray(messages));
     if (Array.isArray(messages)) {
       // Add all fetched messages that are in our current room
+      console.log("lol its an array")
       messages
         .filter(function(message) {
           return message.roomname === app.roomname ||
@@ -214,7 +216,7 @@ var app = {
   handleSubmit: function(event) {
     var message = {
       username: app.username,
-      text: app.$message.val(),
+      message: app.$message.val(),
       roomname: app.roomname || 'lobby'
     };
 

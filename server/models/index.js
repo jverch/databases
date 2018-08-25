@@ -2,23 +2,34 @@ var db = require('../db');
 
 module.exports = {
   messages: {
-    get: function() {}, // a function which produces all the messages
+    get: function(callback) {
+      db.query(`SELECT * FROM messages INNER JOIN users ON users.userID = messages.userID`, (err, result) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        //db.query(`SELECT username FROM users WHERE`)
+        callback(err, result);
+      });
+    }, // a function which produces all the messages
     post: function(messageToAdd, callback) {
 
       db.query(
-        `SELECT id FROM users WHERE username = '${messageToAdd.username}';`,
+        `SELECT userID FROM users WHERE username = '${messageToAdd.username}';`,
         (err, result) => {
           if (err) {
             callback(err);
             return;
           }
+          console.log('ACTUAL RESULT', result);
+          // console.log('REEEEESSSULTTTTTTTT ', messageToAdd.text);
           if (result) {
-            var sql = `INSERT INTO messages (userID, text, roomname) VALUES   (${result[0].id},
+            var sql = `INSERT INTO messages (userID, text, roomname) VALUES   (${result[0].userID},
               "${messageToAdd.message}",
               "${messageToAdd.roomname}"
             );`;
             db.query(sql, (err, result) => {
-              console.log(result);
+              console.log('ERROR', err);
               callback(err);
             });
           } else {
@@ -35,7 +46,7 @@ module.exports = {
     get: function() {},
     post: function(usersToAdd, callback) {
       db.query(
-        `SELECT id FROM users WHERE username = '${usersToAdd.username}';`,
+        `SELECT userID FROM users WHERE username = '${usersToAdd.username}';`,
         (err, result) => {
           if (err) {
             callback(err);
